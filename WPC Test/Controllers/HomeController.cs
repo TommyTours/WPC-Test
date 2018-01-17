@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using Newtonsoft.Json;
 using WPC_Test.Helpers;
 
 namespace WPC_Test.Controllers
@@ -24,16 +25,16 @@ namespace WPC_Test.Controllers
         {
             var content = synClient.DownloadString($"https://api.postcodes.io/postcodes/{postcode}");
 
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Location));
+            Rootobject locationData = JsonConvert.DeserializeObject<Rootobject>(content);
 
-            Location locationData;
-
-            using (MemoryStream memStream = new MemoryStream(Encoding.Unicode.GetBytes(content)))
+            Location locationToReturn = new Location()
             {
-                locationData = (Location) serializer.ReadObject(memStream);
-            }
+                latitude = locationData.result.latitude,
+                longitude = locationData.result.longitude
+            };
 
-            return locationData;
+            return locationToReturn;
         }
     }
+
 }
