@@ -3,20 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
+using System.Xml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using WPC_Test;
 using WPC_Test.Controllers;
+using WPC_Test.Helpers;
 
 namespace WPC_Test.Tests.Controllers
 {
     [TestClass]
     public class HomeControllerTest
     {
+        HomeController controller = new HomeController();
+
         [TestMethod]
         public void Index()
         {
             // Arrange
-            HomeController controller = new HomeController();
+            
 
             // Act
             ViewResult result = controller.Index() as ViewResult;
@@ -26,29 +30,31 @@ namespace WPC_Test.Tests.Controllers
         }
 
         [TestMethod]
-        public void About()
+        public void GetLocation()
         {
-            // Arrange
-            HomeController controller = new HomeController();
-
-            // Act
-            ViewResult result = controller.About() as ViewResult;
-
-            // Assert
-            Assert.AreEqual("Your application description page.", result.ViewBag.Message);
+            var result = controller.GetLocationByPostcode("BS20PT");
         }
 
         [TestMethod]
-        public void Contact()
+        public void GetLocationCorrectType()
         {
-            // Arrange
-            HomeController controller = new HomeController();
+            var result = controller.GetLocationByPostcode("BS20PT");
 
-            // Act
-            ViewResult result = controller.Contact() as ViewResult;
+            Assert.IsInstanceOfType(result, typeof(Location));
+        }
 
-            // Assert
-            Assert.IsNotNull(result);
+        [TestMethod]
+        public void GetLatitude()
+        {
+            var result = controller.GetLocationByPostcode("BS20PT");
+            Assert.AreEqual((double)51.4528587168519, result.latitude);
+        }
+
+        [TestMethod]
+        public void GetLongitude()
+        {
+            var result = controller.GetLocationByPostcode("BS20PT");
+            Assert.AreEqual((double)-2.58337759979648, result.longitude);
         }
     }
 }

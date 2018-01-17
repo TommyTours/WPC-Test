@@ -1,30 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using WPC_Test.Helpers;
 
 namespace WPC_Test.Controllers
 {
     public class HomeController : Controller
     {
+        private static WebClient synClient = new WebClient();
+
         public ActionResult Index()
         {
             return View();
         }
 
-        public ActionResult About()
+        public Location GetLocationByPostcode(string postcode)
         {
-            ViewBag.Message = "Your application description page.";
+            var content = synClient.DownloadString($"https://api.postcodes.io/postcodes/{postcode}");
 
-            return View();
-        }
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Location));
 
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
+            Location locationData;
 
-            return View();
+            using (MemoryStream memStream = new MemoryStream(Encoding.Unicode.GetBytes(content)))
+            {
+                locationData = (Location) serializer.ReadObject(memStream);
+            }
+
+            return locationData;
         }
     }
 }
