@@ -1,36 +1,46 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization.Json;
-using System.Text;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using WPC_Test.Helpers;
 
 namespace WPC_Test.Controllers
 {
     public class HomeController : Controller
     {
-        private static readonly WebClient synClient = new WebClient();
+        private static readonly WebClient SynClient = new WebClient();
 
         public ActionResult Index()
         {
             return View();
         }
 
+        public List<List<JSONCrime>> GetCrimesByLatLongAndDate(Location locationToSearch, DateTime dateToSearch)
+        {
+            var json = SynClient.DownloadString($"https://data.police.uk/api/crimes-street/all-crime?lat={locationToSearch.Latitude}&lng={locationToSearch.Longitude}&date={dateToSearch.Year}-{dateToSearch.Month}");
+
+            List<JSONCrime> crimesFromJson = JsonConvert.DeserializeObject<List<JSONCrime>>(json);
+
+            var crimesByCategory = new List<List<JSONCrime>>();
+
+            foreach (var crimeCategory in crimesFromJson.Select(a => a.category).Distinct())
+            {
+                crimesByCategory.Add((from crime in crimesFromJson where crime.category == crimeCategory select crime).ToList());
+            }
+
+            return crimesByCategory;
+        }
+
         public Location GetLocationByPostcode(string postcode)
         {
-            var content = synClient.DownloadString($"https://api.postcodes.io/postcodes/{postcode}");
+            var json = SynClient.DownloadString($"https://api.postcodes.io/postcodes/{postcode}");
 
-            dynamic locationData = JsonConvert.DeserializeObject<dynamic>(content);
+            dynamic locationData = JsonConvert.DeserializeObject<dynamic>(json);
 
-            Location locationToReturn = new Helpers.Location()
+            Location locationToReturn = new Location()
             {
                 Latitude = locationData.result.latitude,
                 Longitude = locationData.result.longitude
