@@ -2,10 +2,9 @@
 
 namespace WPC_Test.Helpers
 {
-    [DataContract]
     public class Location
     {
-        [DataMember] public double longitude;
-        [DataMember] public double latitude;
+        public double Longitude;
+        public double Latitude;
     }
 }
