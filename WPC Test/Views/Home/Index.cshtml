@@ -1,31 +1,75 @@
-﻿@{
+﻿@using GridMvc.Html
+@using Microsoft.Ajax.Utilities
+@using WebGrease.Css
+@using WPC_Test.Helpers
+@model WPC_Test.Models.HomeViewModel
+@{
     ViewBag.Title = "Home Page";
 }
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+    <link href="~/Content/Gridmvc.css"/>
+    <link href="~/Scripts/gridmvc.min.js"/>  
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function() {
+            $("#accordion").accordion({
+                active: false,
+                collapsible: true
+            });
+        });
+    </script>
+</head>
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+<body>
+@using (Html.BeginForm("Index", "Home", FormMethod.Post))
+{
+    <fieldset>
+        <div style="padding-top: 5px">
+            @Html.Label("Please enter a postcode")
+        </div>
+        <div>
+            @Html.TextBoxFor(m => m.postcode)
+        </div>
+        <div>
+            @Html.Label("Please choose the Month you wish to search")
+        </div>
+        <div>
+            @Html.DropDownListFor(m => m.month, new SelectList(Model.months))
+        </div>
+        <div>
+            @Html.Label("Please choose the Year you wish to search")
+        </div>
+        <div>
+            @Html.DropDownListFor(m => m.year, new SelectList(Model.years.OrderByDescending(a => a)))
+        </div>
+        <div style="padding-top: 5px">
+            <input type="submit" value="Search" />
+        </div>
+    </fieldset>
+}
+<div id="accordion" style="padding-top: 5px">
+    @if (Model.crimesByCategory != null)
+    {
+        foreach (var category in Model.crimesByCategory)
+        {
+            <h3>@category.First().category, number of instances: @category.Count</h3>
+            <div>
+                <div style="overflow-y: auto; height: 400px">
+                    @Html.Grid(category).Named(category.First().category + "Grid").Columns(columns =>
+                    {
+                        columns.Add(c => c.id).Titled("Id");
+                        columns.Add(c => c.location_type).Titled("Location Type");
+                        columns.Add(c => c.location.street.name).Titled("Street");
+                        columns.Add(c => c.month).Titled("Month");
+                    })
+                </div>
+            </div>
+        }
+    }
 </div>
-
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
-</div>
+</body>
+</html>

@@ -6,6 +6,7 @@ using System.Net;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
 using WPC_Test.Helpers;
+using WPC_Test.Models;
 
 namespace WPC_Test.Controllers
 {
@@ -15,7 +16,18 @@ namespace WPC_Test.Controllers
 
         public ActionResult Index()
         {
-            return View();
+            return View(new HomeViewModel());
+        }
+
+        [HttpPost]
+        public ActionResult Index(HomeViewModel model)
+        {
+            ModelState.Clear();
+
+            Location locationToSearch = GetLocationByPostcode(model.postcode);
+
+            return View(
+                new HomeViewModel() {crimesByCategory = GetCrimesByLatLongAndDate(locationToSearch, new DateTime(model.year, model.month, 28))});
         }
 
         public List<List<JSONCrime>> GetCrimesByLatLongAndDate(Location locationToSearch, DateTime dateToSearch)

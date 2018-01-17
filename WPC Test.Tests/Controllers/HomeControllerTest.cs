@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using WPC_Test;
 using WPC_Test.Controllers;
 using WPC_Test.Helpers;
+using WPC_Test.Models;
 using Location = WPC_Test.Helpers.Location;
 
 namespace WPC_Test.Tests.Controllers
@@ -85,6 +86,18 @@ namespace WPC_Test.Tests.Controllers
         {
             var result = _controller.GetCrimesByLatLongAndDate(_testLocation, new DateTime(2017, 6, 30));
             Assert.AreEqual(14, result.Count);
+        }
+
+        [TestMethod]
+        public void viewTest()
+        {
+            _controller.Index(new HomeViewModel()
+            {
+                crimesByCategory = null,
+                month = 6,
+                year = 2017,
+                postcode = "BS20PT"
+            });
         }
     }
 }
